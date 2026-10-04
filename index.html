@@ -46,12 +46,20 @@
   .cam.big { grid-column: 1 / -1; }
   .screen { position: relative; aspect-ratio: 16 / 9; max-width: 100%; background: #000; }
   .screen iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+  /* Embedding blocked: poster image from YouTube, click opens the shared pop-out player window */
   .offline {
-    position: absolute; inset: 0; display: grid; place-content: center; gap: 10px; text-align: center; padding: 16px;
+    position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 8px; text-align: center; padding: 16px;
+    color: var(--fg); text-decoration: none;
     background: repeating-linear-gradient(135deg, #12181a 0 12px, #151c1f 12px 24px);
+    background-size: cover; background-position: center;
   }
-  .offline p { margin: 0; font-family: var(--mono); font-size: 12px; color: var(--muted); }
-  .offline a { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+  .offline .watch {
+    display: inline-flex; align-items: center; gap: 8px; font: 500 13px var(--mono);
+    background: rgba(14,18,20,0.85); border: 1px solid var(--line); border-radius: 4px; padding: 9px 14px;
+  }
+  .offline .watch::before { content: ""; border-style: solid; border-width: 5px 0 5px 9px; border-color: transparent transparent transparent var(--live); }
+  .offline:hover .watch { border-color: var(--accent); color: var(--accent); }
+  .offline small { font: 400 11px var(--mono); color: var(--fg); background: rgba(14,18,20,0.7); padding: 2px 6px; border-radius: 3px; }
 
   .bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-width: 0; }
   .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--live); flex: none; box-shadow: 0 0 0 3px rgba(255,77,61,0.18); }
@@ -103,11 +111,14 @@
   const src = id => "https://www.youtube.com/embed/" + id + "?autoplay=1&mute=1&playsinline=1&rel=0";
   const embedUrl = cam => cam.src || src(cam.id);
   const linkUrl = cam => cam.link || watch(cam.id);
+  const poster = cam => `linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.5)),
+    url(https://i.ytimg.com/vi/${cam.id}/maxresdefault_live.jpg), url(https://i.ytimg.com/vi/${cam.id}/hqdefault.jpg)`;
 
   function screen(cam) {
     if (cam.embed === false) {
-      return `<div class="offline"><p>This stream can only be watched on YouTube.</p>
-        <a href="${linkUrl(cam)}" target="_blank" rel="noopener">Open ${cam.name} &rarr;</a></div>`;
+      return `<a class="offline" href="${linkUrl(cam)}" target="_blank" rel="noopener" data-popout
+        style="${cam.id ? `background-image: ${poster(cam)}` : ""}">
+        <span class="watch">Watch on ${cam.src ? "website" : "YouTube"}</span><small>Opens in pop-out player</small></a>`;
     }
     return `<iframe src="${embedUrl(cam)}" title="${cam.name} live"
       allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
@@ -122,7 +133,7 @@
         <span class="name">${c.name}</span>
         <span class="area">${c.area}</span>
         ${c.embed === false ? "" : `<button data-big="${i}" title="Make this cam full width">Enlarge</button>`}
-        <a href="${linkUrl(c)}" target="_blank" rel="noopener">${c.src ? "Website" : "YouTube"}</a>
+        <a href="${linkUrl(c)}" target="_blank" rel="noopener"${c.embed === false ? " data-popout" : ""}>${c.src ? "Website" : "YouTube"}</a>
       </div>
     </article>`).join("");
 
@@ -133,6 +144,18 @@
     const on = !card.classList.contains("big");
     document.querySelectorAll(".cam.big").forEach(c => { c.classList.remove("big"); c.querySelector("[data-big]").textContent = "Enlarge"; });
     if (on) { card.classList.add("big"); b.textContent = "Shrink"; grid.prepend(card); }
+  });
+
+  // Blocked streams all open in one reusable pop-out window, so clicking the next cam replaces the last.
+  // Cmd/Ctrl/Shift/middle-click still opens a normal tab.
+  document.addEventListener("click", e => {
+    const a = e.target.closest("a[data-popout]");
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    const scr = window.screen;
+    const w = Math.min(1100, scr.availWidth - 40), h = Math.round(w * 9 / 16) + 140;
+    const win = window.open(a.href, "camPopout",
+      `popup,width=${w},height=${h},left=${scr.availWidth - w - 20},top=40`);
+    if (win) { e.preventDefault(); win.focus(); }
   });
 
   document.querySelectorAll("[data-cols]").forEach(btn => btn.addEventListener("click", () => {
