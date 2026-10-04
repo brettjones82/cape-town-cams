@@ -81,6 +81,7 @@
 
 <script>
   // Add or remove cams here. embed:false = owner has blocked embedding, so the tile links out.
+  // Non-YouTube cams: give src (player URL to embed) and link (page to open) instead of id.
   const CAMS = [
     { id: "fhUEi-ka6Ks", name: "Table Mountain", area: "City Bowl" },
     { id: "catxvTQieyY", name: "Table Mountain (second view)", area: "City Bowl" },
@@ -89,6 +90,7 @@
     { id: "4Zu64CmAjMo", name: "Sea Point and Lion's Head", area: "Atlantic" },
     { id: "IGu55JrxyHU", name: "Clifton 4th Beach", area: "Atlantic", embed: false },
     { id: "vOLCjL4kv-w", name: "Table Mountain from Bloubergstrand", area: "Table Bay" },
+    { name: "Big Bay", area: "Table Bay", src: "https://g0.ipcamlive.com/player/player.php?alias=bigbaybigboy&autoplay=1", link: "https://bigbaylifesaving.co.za/" },
     { id: "mxEholKv57A", name: "Langebaan Lagoon", area: "West Coast" },
     { id: "H_wV0IBf_R8", name: "Muizenberg Beach", area: "False Bay" },
     { id: "VuE8e798RuM", name: "Muizenberg Surf", area: "False Bay" },
@@ -98,13 +100,15 @@
   const grid = document.getElementById("grid");
   const watch = id => "https://www.youtube.com/watch?v=" + id;
   const src = id => "https://www.youtube.com/embed/" + id + "?autoplay=1&mute=1&playsinline=1&rel=0";
+  const embedUrl = cam => cam.src || src(cam.id);
+  const linkUrl = cam => cam.link || watch(cam.id);
 
   function screen(cam) {
     if (cam.embed === false) {
       return `<div class="offline"><p>This stream can only be watched on YouTube.</p>
-        <a href="${watch(cam.id)}" target="_blank" rel="noopener">Open ${cam.name} &rarr;</a></div>`;
+        <a href="${linkUrl(cam)}" target="_blank" rel="noopener">Open ${cam.name} &rarr;</a></div>`;
     }
-    return `<iframe src="${src(cam.id)}" title="${cam.name} live"
+    return `<iframe src="${embedUrl(cam)}" title="${cam.name} live"
       allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
       referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>`;
   }
@@ -117,7 +121,7 @@
         <span class="name">${c.name}</span>
         <span class="area">${c.area}</span>
         ${c.embed === false ? "" : `<button data-big="${i}" title="Make this cam full width">Enlarge</button>`}
-        <a href="${watch(c.id)}" target="_blank" rel="noopener">YouTube</a>
+        <a href="${linkUrl(c)}" target="_blank" rel="noopener">${c.src ? "Website" : "YouTube"}</a>
       </div>
     </article>`).join("");
 
