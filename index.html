@@ -59,6 +59,12 @@
   }
   .offline .watch::before { content: ""; border-style: solid; border-width: 5px 0 5px 9px; border-color: transparent transparent transparent var(--live); }
   .offline:hover .watch { border-color: var(--accent); color: var(--accent); }
+  .offline .title { font: 700 clamp(18px, 2.4vw, 28px) var(--display); text-shadow: 0 2px 12px rgba(0,0,0,0.7); margin-bottom: 4px; }
+  .credit {
+    position: absolute; right: 6px; bottom: 6px; font: 400 10px var(--mono); color: rgba(230,236,238,0.75);
+    background: rgba(14,18,20,0.6); padding: 2px 5px; border-radius: 3px; text-decoration: none;
+  }
+  .credit:hover { color: var(--accent); }
   .offline small { font: 400 11px var(--mono); color: var(--fg); background: rgba(14,18,20,0.7); padding: 2px 6px; border-radius: 3px; }
 
   .bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-width: 0; }
@@ -90,19 +96,22 @@
 <script>
   // Add or remove cams here. embed:false = owner has blocked embedding, so the tile links out.
   // Non-YouTube cams: give src (player URL to embed) and link (page to open) instead of id.
+  // Blocked cams can set poster (local photo) and credit [text, url]; otherwise YouTube's thumbnail is used.
   const CAMS = [
     { id: "fhUEi-ka6Ks", name: "Table Mountain", area: "City Bowl" },
     { id: "catxvTQieyY", name: "Table Mountain (second view)", area: "City Bowl" },
     { id: "-Qi7IXhSScA", name: "Signal Hill", area: "City Bowl" },
     { id: "8xvFxAPpEtc", name: "Signal Hill and CBD", area: "City Bowl" },
     { id: "4Zu64CmAjMo", name: "Sea Point and Lion's Head", area: "Atlantic" },
-    { id: "IGu55JrxyHU", name: "Clifton 4th Beach", area: "Atlantic", embed: false },
+    { id: "IGu55JrxyHU", name: "Clifton 4th Beach", area: "Atlantic", embed: false, poster: "img/clifton-4th.jpg",
+      credit: ["Warren Rohner, CC BY-SA 2.0", "https://commons.wikimedia.org/wiki/File:Clifton_4th_Beach.jpg"] },
     { id: "vOLCjL4kv-w", name: "Table Mountain from Bloubergstrand", area: "Table Bay" },
     { name: "Big Bay", area: "Table Bay", src: "https://g0.ipcamlive.com/player/player.php?alias=bigbaybigboy&autoplay=1", link: "https://bigbaylifesaving.co.za/" },
     { id: "mxEholKv57A", name: "Langebaan Lagoon", area: "West Coast" },
     { id: "H_wV0IBf_R8", name: "Muizenberg Beach", area: "False Bay" },
     { id: "VuE8e798RuM", name: "Muizenberg Surf", area: "False Bay" },
-    { id: "nK3l-mKYCwc", name: "Strand", area: "False Bay", embed: false },
+    { id: "nK3l-mKYCwc", name: "Strand Beach", area: "False Bay", embed: false, poster: "img/strand.jpg",
+      credit: ["SkyPixels, CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:Strand_Beach_Promenade.jpg"] },
     { id: "bVtf0Qcc_gY", name: "Nature's Valley, Plettenberg Bay", area: "Garden Route" }
   ];
 
@@ -111,14 +120,16 @@
   const src = id => "https://www.youtube.com/embed/" + id + "?autoplay=1&mute=1&playsinline=1&rel=0";
   const embedUrl = cam => cam.src || src(cam.id);
   const linkUrl = cam => cam.link || watch(cam.id);
-  const poster = cam => `linear-gradient(rgba(0,0,0,0.25), rgba(0,0,0,0.5)),
-    url(https://i.ytimg.com/vi/${cam.id}/maxresdefault_live.jpg), url(https://i.ytimg.com/vi/${cam.id}/hqdefault.jpg)`;
+  const poster = cam => "linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.55)), " + (cam.poster ? `url(${cam.poster})` :
+    `url(https://i.ytimg.com/vi/${cam.id}/maxresdefault_live.jpg), url(https://i.ytimg.com/vi/${cam.id}/hqdefault.jpg)`);
 
   function screen(cam) {
     if (cam.embed === false) {
       return `<a class="offline" href="${linkUrl(cam)}" target="_blank" rel="noopener" data-popout
-        style="${cam.id ? `background-image: ${poster(cam)}` : ""}">
-        <span class="watch">Watch on ${cam.src ? "website" : "YouTube"}</span><small>Opens in pop-out player</small></a>`;
+        style="${cam.id || cam.poster ? `background-image: ${poster(cam)}` : ""}">
+        <span class="title">${cam.name} webcam</span>
+        <span class="watch">Watch on ${cam.src ? "website" : "YouTube"}</span><small>Opens in pop-out player</small></a>
+        ${cam.credit ? `<a class="credit" href="${cam.credit[1]}" target="_blank" rel="noopener">Photo: ${cam.credit[0]}</a>` : ""}`;
     }
     return `<iframe src="${embedUrl(cam)}" title="${cam.name} live"
       allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
