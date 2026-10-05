@@ -16,16 +16,21 @@
     --muted: #8a9a9f;
     --live: #ff4d3d;
     --accent: #5cc8d6;
+    --line-soft: #1d2629;
+    --gust: #3f7f88;
+    --hover: #1b2528;
+    --tip: #0a0e10;
     --display: "Archivo", system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
     --cols: 3;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
   html, body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--display); }
   .wrap { padding: 20px 16px 32px; max-width: 1800px; margin: 0 auto; }
 
-  header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 18px; }
+  header.top { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; margin-bottom: 18px; }
   h1 { font-size: 20px; font-weight: 700; margin: 0; letter-spacing: 0.01em; }
   .clock { font-family: var(--mono); font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
   .controls { margin-left: auto; display: flex; gap: 6px; align-items: center; }
@@ -76,13 +81,93 @@
   .bar a:hover { color: var(--accent); }
   @media (prefers-reduced-motion: no-preference) { .dot:not(.ext) { animation: pulse 2s ease-in-out infinite; } }
   @keyframes pulse { 50% { opacity: 0.35; } }
+
+  /* Conditions tab: spot cards with a one-liner, a morning/afternoon/evening table, and an hourly
+     wind strip whose 15 columns line up under the three slot columns (6:5:4 hours). */
+  .views { display: flex; gap: 6px; }
+  .cond .cond-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; }
+  .cond .days { display: flex; gap: 6px; }
+  .cond .days button span { opacity: 0.75; margin-left: 6px; font-weight: 400; }
+  .cond .sun { font: 400 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+  .cond .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-left: auto; font: 400 11px var(--mono); color: var(--muted); }
+  .cond .legend span { display: inline-flex; align-items: center; gap: 6px; }
+  .cond .key { display: inline-block; width: 8px; height: 12px; border-radius: 2px 2px 0 0; }
+  .cond .key.w { background: var(--accent); }
+  .cond .key.g { background: var(--gust); }
+  .cond .key.now { width: 0; border-left: 1px solid var(--fg); border-radius: 0; }
+  .cond .cond-status { margin: 12px 0 0; font: 400 12px/1.6 var(--mono); color: var(--muted); }
+  .cond .cond-status button { margin-left: 4px; }
+  .cond h2.group { margin: 22px 0 4px; font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
+  .cond .group-note { margin: 0 0 12px; font-size: 13px; line-height: 1.5; color: var(--muted); max-width: 75ch; }
+  .cond .cards { display: grid; gap: 14px; grid-template-columns: minmax(0, 1fr); margin-top: 10px; }
+  @media (min-width: 820px) { .cond .cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (min-width: 1320px) { .cond .cards.sea { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 1700px) { .cond .cards.mtn { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+  .cond .spot { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 14px 12px; display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+  .cond .spot-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+  .cond .spot h3 { margin: 0; font-size: 16px; font-weight: 700; text-wrap: balance; }
+  .cond .meta { margin: 3px 0 0; font: 400 11px var(--mono); color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; }
+  .cond .chip { font: 500 11px var(--mono); border: 1px solid var(--line); border-radius: 999px; padding: 3px 9px; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .cond .line { margin: 0; font-size: 14px; line-height: 1.5; max-width: 65ch; text-wrap: pretty; }
+  .cond .foot { margin: 0; font: 400 11px/1.45 var(--mono); color: var(--muted); }
+
+  .cond table.slots { width: 100%; table-layout: fixed; border-collapse: collapse; font: 400 12px var(--mono); font-variant-numeric: tabular-nums; }
+  .cond col.c-label { width: 22%; } .cond col.c-0 { width: 31.2%; } .cond col.c-1 { width: 26%; } .cond col.c-2 { width: 20.8%; }
+  .cond .slots thead th { text-align: left; vertical-align: bottom; padding: 0 6px 6px; font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: 0.06em; }
+  .cond .slots thead th small { display: block; font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted); }
+  .cond .slots thead th small em { font-style: normal; color: var(--accent); }
+  .cond .slots tbody th { text-align: left; vertical-align: top; padding: 5px 6px 5px 0; font-weight: 400; color: var(--muted); }
+  .cond .slots tbody th small { display: block; font-size: 10px; opacity: 0.8; }
+  .cond .slots td { vertical-align: top; padding: 5px 6px; overflow-wrap: anywhere; }
+  .cond .slots tbody tr > * { border-top: 1px solid var(--line-soft); }
+  .cond .slots td + td, .cond .slots thead th + th + th { border-left: 1px solid var(--line-soft); }
+  .cond .slots .past { color: var(--muted); }
+
+  .cond .strip-row th { position: relative; }
+  .cond .strip-row td { padding: 16px 0 2px; }
+  .cond .axis { position: absolute; top: 16px; right: 6px; height: 56px; width: 24px; }
+  .cond .axis i { position: absolute; right: 0; transform: translateY(50%); font: 400 10px var(--mono); font-style: normal; color: var(--muted); }
+  .cond .strip-name { position: absolute; left: 0; bottom: 4px; font-size: 11px; }
+  .cond .strip { position: relative; border-radius: 2px; }
+  .cond .strip:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+  .cond .plot { position: relative; height: 56px; border-bottom: 1px solid var(--line); }
+  .cond .gl { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line-soft); }
+  .cond .slot-div { position: absolute; top: -16px; bottom: 0; border-left: 1px solid var(--line-soft); }
+  .cond .now { position: absolute; top: -14px; bottom: 0; border-left: 1px solid var(--fg); opacity: 0.6; z-index: 2; }
+  .cond .now span { position: absolute; top: -2px; left: 4px; font: 400 9px var(--mono); white-space: nowrap; }
+  .cond .now.flip span { left: auto; right: 4px; }
+  .cond .cols, .cond .arrows, .cond .hours { display: grid; grid-template-columns: repeat(15, minmax(0, 1fr)); }
+  .cond .cols { position: absolute; inset: 0; }
+  .cond .col { position: relative; height: 100%; }
+  .cond .col.on { background: var(--hover); }
+  .cond .col b { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: min(60%, 16px); border-radius: 4px 4px 0 0; min-height: 2px; }
+  .cond .col b.g { background: var(--gust); }
+  .cond .col b.w { background: var(--accent); }
+  .cond .col.past b, .cond .arrows .past { opacity: 0.4; }
+  .cond .peak { position: absolute; left: 50%; transform: translate(-50%, -2px); font: 500 10px var(--mono); white-space: nowrap; }
+  .cond .arrows { height: 16px; align-items: center; justify-items: center; color: var(--muted); }
+  .cond .arrows svg { width: 10px; height: 10px; display: block; }
+  .cond .hours { height: 14px; font: 400 10px var(--mono); color: var(--muted); }
+  .cond .hours span { text-align: center; }
+  .cond .about { margin-top: 26px; display: grid; gap: 6px; font: 400 12px/1.55 var(--mono); color: var(--muted); max-width: 95ch; }
+  .cond .about p { margin: 0; }
+  .cond .about a { color: var(--accent); }
+  .cond-tip { position: fixed; z-index: 20; pointer-events: none; background: var(--tip); border: 1px solid var(--line); border-radius: 4px; padding: 6px 9px; font: 400 11px/1.55 var(--mono); color: var(--muted); white-space: nowrap; }
+  .cond-tip strong { color: var(--fg); font-weight: 500; }
+  .cond-tip .h { color: var(--fg); }
+  @media (max-width: 600px) { .cond .legend { margin-left: 0; } .cond table.slots { font-size: 11px; } }
 </style>
 </head>
 <body>
 <div class="wrap">
-  <header>
+  <header class="top">
     <h1>Cape Town Cams</h1>
     <div class="clock" id="clock">SAST --:--</div>
+    <nav class="views" aria-label="View">
+      <button type="button" id="v-cams" aria-pressed="true">Cams</button>
+      <button type="button" id="v-cond" aria-pressed="false">Conditions</button>
+    </nav>
     <div class="controls" role="group" aria-label="Columns">
       <span>Columns</span>
       <button id="c2" data-cols="2">2</button>
@@ -91,7 +176,35 @@
     </div>
   </header>
   <main class="grid" id="grid"></main>
+  <section id="conditions" class="cond" hidden>
+    <div class="cond-head">
+      <div class="days" role="group" aria-label="Day">
+        <button type="button" data-day="0" aria-pressed="true">Today<span id="cond-d0"></span></button>
+        <button type="button" data-day="1" aria-pressed="false">Tomorrow<span id="cond-d1"></span></button>
+      </div>
+      <div class="sun" id="cond-sun"></div>
+      <div class="legend" aria-hidden="true">
+        <span><i class="key w"></i>Wind, hourly average</span>
+        <span><i class="key g"></i>Gusts</span>
+        <span><svg width="10" height="10" viewBox="0 0 10 10"><path d="M5 0 9 6H6v4H4V6H1z" fill="currentColor"/></svg>Arrow points the way the wind blows</span>
+        <span><i class="key now"></i>Now</span>
+      </div>
+    </div>
+    <p class="cond-status" id="cond-status" role="status"></p>
+    <div id="cond-body" hidden>
+      <h2 class="group">Beaches and sea</h2>
+      <div class="cards sea" id="cond-sea"></div>
+      <h2 class="group">Mountain and trails</h2>
+      <p class="group-note">Temperatures are adjusted for each summit's height. Wind on the peaks is the forecast at roughly summit height; the forecast has no gust figures up there, so those charts show the hourly average only.</p>
+      <div class="cards mtn" id="cond-mtn"></div>
+    </div>
+    <footer class="about">
+      <p>Numbers come from <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo</a>'s weather and marine forecasts. Every chart uses the same scale, so bar heights compare across spots.</p>
+      <p>The forecast works in squares about 10 km across, so close-together spots can share one set of numbers. Each card says which spots share its square. Beach directions are approximate.</p>
+    </footer>
+  </section>
 </div>
+<div id="cond-tip" class="cond-tip" hidden></div>
 
 <script>
   // Add or remove cams here. embed:false = owner has blocked embedding, so the tile links out.
@@ -181,6 +294,514 @@
   const tick = () => clock.textContent = "SAST " + new Date().toLocaleTimeString("en-ZA",
     { timeZone: "Africa/Johannesburg", hour: "2-digit", minute: "2-digit" });
   tick(); setInterval(tick, 15000);
+</script>
+<script>
+// Conditions tab: weather and sea forecast for beaches and the mountain from Open-Meteo (free, no key).
+// Fetched in the browser when the tab opens and refreshed every 30 minutes. Each spot is summarised into
+// morning, afternoon and evening, with a one-line description written from those numbers.
+(() => {
+  // Spots in display order. faces = the way the beach looks out to sea, in compass degrees (approximate).
+  // level = pressure level used for wind near the summit: 975 hPa ≈ 300 m, 925 ≈ 750 m, 900 ≈ 1,000 m.
+  const SPOTS = [
+    { id: "clifton", name: "Clifton 4th Beach", group: "sea", kind: "beach", lat: -33.9406, lon: 18.3753, elev: 5, faces: 285, area: "Atlantic" },
+    { id: "muizenberg", name: "Muizenberg", group: "sea", kind: "beach", lat: -34.108, lon: 18.471, elev: 5, faces: 160, area: "False Bay" },
+    { id: "blouberg", name: "Blouberg (Big Bay)", group: "sea", kind: "beach", lat: -33.7935, lon: 18.456, elev: 5, faces: 250, area: "Table Bay" },
+    { id: "fishhoek", name: "Fish Hoek", group: "sea", kind: "beach", lat: -34.1372, lon: 18.4318, elev: 5, faces: 120, area: "False Bay" },
+    { id: "simonstown", name: "Simon's Town", group: "sea", kind: "beach", lat: -34.195, lon: 18.45, elev: 5, faces: 75, area: "False Bay" },
+    { id: "capepoint", name: "Cape Point", group: "sea", kind: "point", lat: -34.3568, lon: 18.497, elev: 120, area: "Tip of the peninsula" },
+    { id: "tablemtn", name: "Table Mountain", group: "mountain", kind: "peak", lat: -33.9575, lon: 18.403, elev: 1067, level: 900, area: "Top station 1,067 m" },
+    { id: "lionshead", name: "Lion's Head", group: "mountain", kind: "peak", lat: -33.9352, lon: 18.3891, elev: 669, level: 925, area: "Summit 669 m" },
+    { id: "signal", name: "Signal Hill", group: "mountain", kind: "peak", lat: -33.9188, lon: 18.4022, elev: 350, level: 975, area: "Summit 350 m" },
+    { id: "newlands", name: "Newlands Forest", group: "mountain", kind: "trail", lat: -33.97, lon: 18.444, elev: 200, area: "Forest trails, about 200 m" },
+  ];
+  const TZ = "Africa/Johannesburg";
+  const REFRESH_MS = 30 * 60 * 1000;
+  const SLOTS = [
+    { key: "morning", label: "Morning", from: 6, to: 12 },
+    { key: "afternoon", label: "Afternoon", from: 12, to: 17 },
+    { key: "evening", label: "Evening", from: 17, to: 21 },
+  ];
+  const FIRST_HOUR = 6, LAST_HOUR = 21;
+  const HOURS = Array.from({ length: LAST_HOUR - FIRST_HOUR }, (_, i) => FIRST_HOUR + i);
+  const LEVEL_HEIGHT = { 975: "~300 m", 925: "~750 m", 900: "~1,000 m" };
+
+  // ---- Small helpers ----
+  const C16 = ["N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"];
+  const W8 = ["northerly", "north-easterly", "easterly", "south-easterly", "southerly", "south-westerly", "westerly", "north-westerly"];
+  const P8 = ["north", "north-east", "east", "south-east", "south", "south-west", "west", "north-west"];
+  const c16 = d => d == null ? "–" : C16[Math.round(d / 22.5) % 16];
+  const w8 = d => W8[Math.round(d / 45) % 8];
+  const p8 = d => P8[Math.round(d / 45) % 8];
+  const angDiff = (a, b) => { const d = Math.abs(a - b) % 360; return d > 180 ? 360 - d : d; };
+  const clean = a => (a || []).filter(v => v != null);
+  const avg = a => (a = clean(a)).length ? a.reduce((s, v) => s + v, 0) / a.length : null;
+  const hi = a => (a = clean(a)).length ? Math.max(...a) : null;
+  const lo = a => (a = clean(a)).length ? Math.min(...a) : null;
+  const sum = a => clean(a).reduce((s, v) => s + v, 0);
+  const round = v => v == null ? "–" : String(Math.round(v));
+  const fix1 = v => v == null ? "–" : (Math.round(v * 10) / 10).toFixed(1);
+  const cap = s => s.charAt(0).toUpperCase() + s.slice(1);
+  const pad = h => String(h).padStart(2, "0");
+  const hours = (arr, d, from, to) => (arr || []).slice(d * 24 + from, d * 24 + to);
+  const $ = id => document.getElementById(id);
+
+  // Speed-weighted average direction, so a calm hour doesn't swing the result.
+  function meanDir(dirs, weights) {
+    let x = 0, y = 0, n = 0;
+    dirs.forEach((d, i) => {
+      if (d == null) return;
+      const w = weights ? (weights[i] ?? 0) + 0.5 : 1;
+      x += Math.sin(d * Math.PI / 180) * w; y += Math.cos(d * Math.PI / 180) * w; n++;
+    });
+    return n ? (Math.atan2(x, y) * 180 / Math.PI + 360) % 360 : null;
+  }
+
+  // ---- Summaries and one-liners ----
+  function slotStats(spot, d, slot) {
+    const h = k => hours(spot[k], d, slot.from, slot.to);
+    const s = {
+      tLo: lo(h("t")), tHi: hi(h("t")), cloud: avg(h("cloud")), pop: hi(h("pop")), mm: sum(h("mm")),
+      wind: avg(h("wind")), gust: hi(h("gust")), dir: meanDir(h("dir"), h("wind")), uv: hi(h("uv")), vis: lo(h("vis")),
+    };
+    if (spot.topWind) Object.assign(s, { top: avg(h("topWind")), topMax: hi(h("topWind")), topDir: meanDir(h("topDir"), h("topWind")) });
+    if (spot.sst) Object.assign(s, {
+      sst: avg(h("sst")), wave: avg(h("wave")), period: avg(h("period")), waveDir: meanDir(h("waveDir")),
+      swell: avg(h("swell")), swellPeriod: avg(h("swellPeriod")),
+    });
+    return s;
+  }
+
+  function skyWord(cloud, evening) {
+    if (cloud == null) return "–";
+    if (cloud < 15) return evening ? "Clear" : "Sunny";
+    if (cloud < 40) return evening ? "Mostly clear" : "Mostly sunny";
+    if (cloud < 70) return "Partly cloudy";
+    if (cloud < 90) return "Mostly cloudy";
+    return "Overcast";
+  }
+
+  const strength = k => k < 6 ? "calm" : k < 20 ? "light" : k < 30 ? "moderate" : k < 40 ? "fresh" : k < 50 ? "strong" : "very strong";
+
+  function exposure(dir, wind, faces) {
+    if (faces == null || dir == null) return "–";
+    if (wind < 6) return "Light wind";
+    const d = angDiff(dir, faces);
+    return d <= 45 ? "Onshore" : d >= 135 ? "Offshore" : "Cross-shore";
+  }
+
+  // How the wind changes across the three slots. Gusty spots quote the strongest gust; peaks quote the
+  // average wind at summit height (the forecast has no gusts up there).
+  function windStory(stats, useTop) {
+    const lvl = stats.map(s => useTop ? s.top : s.wind);
+    const val = stats.map(s => useTop ? s.top : s.gust);
+    const dir = stats.map(s => useTop ? s.topDir : s.dir);
+    const q = i => useTop ? `about ${Math.round(val[i])} km/h` : `${Math.round(val[i])} km/h gusts`;
+    // "Gusty" when gusts run far above the average, so "light" never sits next to a 46 km/h gust.
+    const desc = i => {
+      const m = lvl[i], g = val[i];
+      if (m < 6 && (useTop || g < 20)) return "calm";
+      const word = !useTop && g >= 30 && g >= 1.8 * m ? "gusty" : m < 6 ? "light" : strength(m);
+      return `${word} ${w8(dir[i])}`;
+    };
+    const tol = useTop ? 4 : 5, spreadMin = useTop ? 6 : 10;
+    const sgn = d => d >= tol ? 1 : d <= -tol ? -1 : 0;
+    const s1 = sgn(val[1] - val[0]), s2 = sgn(val[2] - val[1]);
+    const spread = Math.max(...val) - Math.min(...val);
+    const turn = lvl[0] >= 6 && lvl[2] >= 6 && angDiff(dir[0], dir[2]) >= 67.5 ? `, turning ${w8(dir[2])}` : "";
+    let story;
+    if (spread < spreadMin || (s1 === 0 && s2 === 0)) {
+      story = [0, 1, 2].every(i => desc(i) === "calm") ? "calm all day"
+        : `${desc(1)} all day, ${useTop ? `around ${Math.round(avg(val))} km/h`
+          : `${desc(1).startsWith("gusty") ? "" : "gusts "}up to ${Math.round(Math.max(...val))} km/h`}`;
+    } else if (s1 >= 0 && s2 >= 0) {
+      const at = val[2] >= val[1] ? 2 : 1;
+      story = `${desc(0)} in the morning, picking up to ${q(at)} by the ${SLOTS[at].key}`;
+    } else if (s1 <= 0 && s2 <= 0) {
+      story = `${desc(0)} in the morning (${q(0)}), easing to ${q(2)} by the evening`;
+    } else if (s1 > 0) {
+      story = `${desc(0)} in the morning, peaking at ${q(1)} in the afternoon, easing to ${q(2)} by the evening`;
+    } else {
+      story = `${desc(0)} in the morning (${q(0)}), dropping to ${q(1)} in the afternoon, back up to ${q(2)} by the evening`;
+    }
+    return story + turn;
+  }
+
+  // Daytime sky in one phrase; only a real change (two steps or more) gets "clouding over" / "clearing".
+  const SKY_STEPS = ["Sunny", "Mostly sunny", "Partly cloudy", "Mostly cloudy", "Overcast"];
+  function skyRain(stats) {
+    const im = SKY_STEPS.indexOf(skyWord(stats[0].cloud)), ia = SKY_STEPS.indexOf(skyWord(stats[1].cloud));
+    const sky = Math.abs(ia - im) >= 2
+      ? `${SKY_STEPS[im].toLowerCase()}, ${ia > im ? "clouding over" : "clearing"} in the afternoon`
+      : skyWord(avg([stats[0].cloud, stats[1].cloud])).toLowerCase();
+    const wet = [0, 1, 2].filter(i => stats[i].pop >= 40 || stats[i].mm >= 0.5);
+    if (!wet.length) return sky.includes(",") ? `${sky}, no rain` : `${sky} and dry`;
+    const mm = sum(wet.map(i => stats[i].mm));
+    const when = wet.length === 3 ? "all day" : `in the ${wet.map(i => SLOTS[i].key).join(" and ")}`;
+    return `${sky}, rain likely ${when}${mm >= 0.5 ? ` (${fix1(mm)} mm)` : ""}`;
+  }
+
+  // Rain before the day starts: the last 24 hours for today, the forecast 06:00 to 06:00 for tomorrow.
+  const rainBefore = (spot, d) => d === 0 ? spot.rain24 : sum(hours(spot.mm, 0, 6, 24).concat(hours(spot.mm, 1, 0, 6)));
+
+  function oneLiner(spot, d) {
+    const st = SLOTS.map(sl => slotStats(spot, d, sl));
+    const t = hours(spot.t, d, FIRST_HOUR, LAST_HOUR);
+    const temps = `${round(lo(t))}–${round(hi(t))}°C`;
+    const sky = skyRain(st);
+    if (spot.kind === "peak") {
+      return `At the top: ${temps}, ${sky}. Wind near the summit: ${windStory(st, true)}. UV up to ${round(hi(st.map(s => s.uv)))}.`;
+    }
+    if (spot.kind === "trail") {
+      const r = rainBefore(spot, d);
+      const span = d === 0 ? "in the last 24 hours" : "forecast in the 24 hours before 06:00";
+      return `${r >= 0.1 ? `${fix1(r)} mm of rain` : "No rain"} ${span}. ${temps}, ${sky}. ${cap(windStory(st, false))}.`;
+    }
+    const whole = slotStats(spot, d, { from: FIRST_HOUR, to: LAST_HOUR });
+    let line = `${temps}, ${sky}. ${cap(windStory(st, false))}.`;
+    if (spot.kind === "point") {
+      if (whole.vis != null && whole.vis < 10) line += ` Visibility down to ${fix1(whole.vis)} km.`;
+      line += ` Swell ${fix1(whole.swell)} m at ${round(whole.swellPeriod)} s.`;
+    } else if (whole.sst != null) {
+      line += ` Water ${fix1(whole.sst)}°C, waves ${fix1(whole.wave)} m at ${round(whole.period)} s from the ${p8(whole.waveDir)}.`;
+    }
+    return line;
+  }
+
+  // ---- Fetching ----
+  const HOURLY = ["temperature_2m", "precipitation_probability", "precipitation", "cloud_cover", "visibility",
+    "wind_speed_10m", "wind_gusts_10m", "wind_direction_10m", "uv_index",
+    "wind_speed_975hPa", "wind_direction_975hPa", "wind_speed_925hPa", "wind_direction_925hPa",
+    "wind_speed_900hPa", "wind_direction_900hPa"].join(",");
+  const MARINE = "sea_surface_temperature,wave_height,wave_period,wave_direction,swell_wave_height,swell_wave_period";
+
+  function sastNow() {
+    const p = Object.fromEntries(new Intl.DateTimeFormat("en-CA", {
+      timeZone: TZ, year: "numeric", month: "2-digit", day: "2-digit", hour: "2-digit", minute: "2-digit", hourCycle: "h23",
+    }).formatToParts(new Date()).map(x => [x.type, x.value]));
+    return { date: `${p.year}-${p.month}-${p.day}`, hour: +p.hour % 24, minute: +p.minute };
+  }
+
+  // One retry after a short pause: Open-Meteo occasionally answers "overloaded".
+  async function getJSON(url) {
+    for (let attempt = 0; ; attempt++) {
+      const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), 15000);
+      try {
+        const r = await fetch(url, { signal: ctl.signal });
+        const d = await r.json();
+        if (!r.ok || d.error) throw new Error(d.reason || `HTTP ${r.status}`);
+        return d;
+      } catch (e) {
+        if (attempt >= 1) throw e;
+        await new Promise(res => setTimeout(res, 3000));
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+  }
+
+  async function fetchConditions() {
+    const now = sastNow();
+    const sea = SPOTS.filter(s => s.group === "sea");
+    const list = (arr, k) => arr.map(s => s[k]).join(",");
+    const url = (base, p) => `${base}?${new URLSearchParams(p)}`;
+    const [wx, mar] = await Promise.all([
+      getJSON(url("https://api.open-meteo.com/v1/forecast", {
+        latitude: list(SPOTS, "lat"), longitude: list(SPOTS, "lon"), elevation: list(SPOTS, "elev"),
+        hourly: HOURLY, daily: "sunrise,sunset", past_days: 1, forecast_days: 2, timezone: TZ,
+      })),
+      getJSON(url("https://marine-api.open-meteo.com/v1/marine", {
+        latitude: list(sea, "lat"), longitude: list(sea, "lon"),
+        hourly: MARINE, forecast_days: 2, timezone: TZ, cell_selection: "sea",
+      })),
+    ]);
+    const wxs = [].concat(wx), mars = [].concat(mar);
+    const today = `${now.date}T00:00`, thisHour = `${now.date}T${pad(now.hour)}:00`;
+    const ints = a => a.map(v => v == null ? null : Math.round(v));
+    const spots = SPOTS.map((spot, i) => {
+      const h = wxs[i].hourly, start = h.time.indexOf(today);
+      if (start < 0) throw new Error("The forecast has no data for today");
+      const take = (k, f = a => a) => f(h[k].slice(start, start + 48));
+      const s = {
+        ...spot, cell: [wxs[i].latitude, wxs[i].longitude],
+        rain24: sum(h.precipitation.filter((_, j) => h.time[j] <= thisHour).slice(-24)),
+        t: take("temperature_2m"), pop: take("precipitation_probability"), mm: take("precipitation"),
+        cloud: take("cloud_cover"), vis: take("visibility", a => a.map(v => v == null ? null : v / 1000)),
+        wind: take("wind_speed_10m", ints), gust: take("wind_gusts_10m", ints), dir: take("wind_direction_10m", ints),
+        uv: take("uv_index"),
+      };
+      if (spot.level) { s.topWind = take(`wind_speed_${spot.level}hPa`, ints); s.topDir = take(`wind_direction_${spot.level}hPa`, ints); }
+      const k = sea.indexOf(spot);
+      const m = k >= 0 ? mars[k].hourly : null, ms = m ? m.time.indexOf(today) : -1;
+      if (ms >= 0) {
+        const mt = key => m[key].slice(ms, ms + 48);
+        Object.assign(s, {
+          sst: mt("sea_surface_temperature"), wave: mt("wave_height"), period: mt("wave_period"),
+          waveDir: mt("wave_direction"), swell: mt("swell_wave_height"), swellPeriod: mt("swell_wave_period"),
+        });
+      }
+      return s;
+    });
+    const daily = wxs[0].daily, di = daily.time.indexOf(now.date);
+    const days = [0, 1].map(i => ({ date: daily.time[di + i], sunrise: daily.sunrise[di + i].slice(-5), sunset: daily.sunset[di + i].slice(-5) }));
+    return { generated: `${pad(now.hour)}:${pad(now.minute)}`, spots, days };
+  }
+
+  // ---- Rendering ----
+  let data = null, loadedAt = 0, loading = null, day = 0, nowH = 0;
+  const tip = $("cond-tip");
+  const WEEKDAY = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const MONTH = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const dateLabel = iso => { const d = new Date(iso + "T12:00:00Z"); return `${WEEKDAY[d.getUTCDay()]} ${d.getUTCDate()} ${MONTH[d.getUTCMonth()]}`; };
+  // Hours since midnight on the forecast's "today"; past 24 once the date has moved on.
+  function currentHour() {
+    const n = sastNow(), today = data.days[0].date;
+    return n.date === today ? n.hour + n.minute / 60 : n.date > today ? 24 : 0;
+  }
+
+  const fmtTemp = s => `${round(s.tLo)}–${round(s.tHi)}`;
+  const fmtWind = (k, d) => k == null ? "–" : k < 6 ? "Calm" : `${c16(d)} ${Math.round(k)}`;
+  const fmtRain = s => !s.pop && s.mm < 0.1 ? "None" : `${s.pop ?? 0}%${s.mm >= 0.1 ? ` · ${fix1(s.mm)} mm` : ""}`;
+  const fmtVis = v => v == null ? "–" : v >= 20 ? "20+" : fix1(v);
+
+  // Table rows per kind of spot: [label, unit, cell(slotStats, slotIndex, spot)]
+  const ROW = {
+    air: ["Air", "°C", s => fmtTemp(s)],
+    sky: ["Sky", "", (s, i) => skyWord(s.cloud, i === 2)],
+    rain: ["Rain", "chance", fmtRain],
+    wind: ["Wind", "km/h", s => fmtWind(s.wind, s.dir)],
+    gust: ["Gusts", "km/h", s => round(s.gust)],
+    beach: ["On the beach", "", (s, i, sp) => exposure(s.dir, s.wind, sp.faces)],
+    uv: ["UV", "max", s => round(s.uv)],
+    waves: ["Waves", "", s => `${fix1(s.wave)} m · ${round(s.period)} s · ${c16(s.waveDir)}`],
+    vis: ["Visibility", "km", s => fmtVis(s.vis)],
+    swell: ["Swell", "", s => `${fix1(s.swell)} m · ${round(s.swellPeriod)} s`],
+    top: ["Wind", "km/h", s => fmtWind(s.top, s.topDir)],
+  };
+  const ROWS = {
+    beach: ["air", "sky", "rain", "wind", "gust", "beach", "uv", "waves"],
+    point: ["air", "sky", "vis", "rain", "wind", "gust", "swell"],
+    peak: ["air", "sky", "rain", "top", "uv"],
+    trail: ["air", "sky", "rain", "wind", "gust", "uv"],
+  };
+
+  // One shared scale for every chart on the selected day, rounded up to a multiple of 20 km/h.
+  function scaleFor() {
+    let m = 0;
+    for (const s of data.spots) for (const h of HOURS) m = Math.max(m, (s.topWind || s.gust)[day * 24 + h] ?? 0);
+    return Math.max(40, Math.ceil((m + 6) / 20) * 20);
+  }
+
+  function el(tag, attrs = {}, text) {
+    const n = document.createElement(tag);
+    for (const [k, v] of Object.entries(attrs)) if (v != null) n.setAttribute(k, v);
+    if (text != null) n.textContent = text;
+    return n;
+  }
+
+  function sharedNote(spot) {
+    const others = data.spots.filter(o => o !== spot && o.cell[0] === spot.cell[0] && o.cell[1] === spot.cell[1]).map(o => o.name);
+    if (!others.length) return null;
+    return `Same forecast square as ${others.length > 1 ? `${others.slice(0, -1).join(", ")} and ${others.at(-1)}` : others[0]}.`;
+  }
+
+  function chipFor(spot) {
+    if (spot.sst) return `Water ${fix1(avg(hours(spot.sst, day, FIRST_HOUR, LAST_HOUR)))}°C`;
+    if (spot.kind === "trail") return `Rain ${day === 0 ? "last 24 h" : "overnight"}: ${fix1(rainBefore(spot, day))} mm`;
+    return null;
+  }
+
+  function buildStrip(spot, scale) {
+    const useTop = !!spot.topWind;
+    const at = (k, h) => spot[k][day * 24 + h];
+    const peakOf = h => (useTop ? at("topWind", h) : at("gust", h)) ?? 0;
+    const isPast = h => day === 0 && h + 1 <= nowH;
+    const maxH = HOURS.reduce((b, h) => peakOf(h) > peakOf(b) ? h : b, HOURS[0]);
+    const pct = v => `${(v ?? 0) / scale * 100}%`;
+
+    const strip = el("div", {
+      class: "strip", tabindex: "0", role: "img",
+      "aria-label": `Hourly wind from 06:00 to 21:00. ${useTop ? "Strongest" : "Strongest gusts"} ${peakOf(maxH)} km/h at ${pad(maxH)}:00.`,
+    });
+    const plot = el("div", { class: "plot" });
+    for (const v of [20, 40, 60, 80, 100].filter(v => v <= scale)) plot.append(el("i", { class: "gl", style: `bottom:${pct(v)}` }));
+    for (const h of [12, 17]) plot.append(el("i", { class: "slot-div", style: `left:${(h - FIRST_HOUR) / HOURS.length * 100}%` }));
+    if (day === 0 && nowH >= FIRST_HOUR && nowH < LAST_HOUR) {
+      const left = (nowH - FIRST_HOUR) / HOURS.length * 100;
+      const now = el("i", { class: `now${left > 85 ? " flip" : ""}`, style: `left:${left}%` });
+      now.append(el("span", {}, "now"));
+      plot.append(now);
+    }
+    const cols = el("div", { class: "cols" }), arrows = el("div", { class: "arrows" }), hrs = el("div", { class: "hours" });
+    for (const h of HOURS) {
+      const col = el("div", { class: `col${isPast(h) ? " past" : ""}`, "data-h": h });
+      if (!useTop) col.append(el("b", { class: "g", style: `height:${pct(at("gust", h))}` }));
+      col.append(el("b", { class: "w", style: `height:${pct(useTop ? at("topWind", h) : at("wind", h))}` }));
+      if (h === maxH) col.append(el("span", { class: "peak", style: `bottom:${pct(peakOf(h))}` }, String(peakOf(h))));
+      cols.append(col);
+      const dir = useTop ? at("topDir", h) : at("dir", h);
+      const a = el("span", { class: isPast(h) ? "past" : null });
+      if (dir != null) a.innerHTML = `<svg viewBox="0 0 10 10" style="transform:rotate(${(dir + 180) % 360}deg)"><path d="M5 0 9 6H6v4H4V6H1z" fill="currentColor"/></svg>`;
+      arrows.append(a);
+      hrs.append(el("span", {}, h % 3 === 0 ? pad(h) : ""));
+    }
+    plot.append(cols);
+    strip.append(plot, arrows, hrs);
+    wireStrip(strip, spot);
+    return strip;
+  }
+
+  function buildCard(spot, scale) {
+    const card = el("article", { class: "spot", id: `spot-${spot.id}` });
+    const head = el("div", { class: "spot-head" }), titles = el("div");
+    titles.append(el("h3", {}, spot.name), el("p", { class: "meta" }, spot.area + (spot.faces != null ? ` · faces ${c16(spot.faces)}` : "")));
+    head.append(titles);
+    const chip = chipFor(spot);
+    if (chip) head.append(el("span", { class: "chip" }, chip));
+    card.append(head, el("p", { class: "line" }, oneLiner(spot, day)));
+
+    const stats = SLOTS.map(sl => slotStats(spot, day, sl));
+    const slotPast = i => day === 0 && nowH >= SLOTS[i].to;
+    const table = el("table", { class: "slots" });
+    const cg = el("colgroup");
+    cg.append(el("col", { class: "c-label" }), ...SLOTS.map((_, i) => el("col", { class: `c-${i}` })));
+    const thead = el("thead"), hr = el("tr");
+    hr.append(el("th", { scope: "col" }));
+    SLOTS.forEach((sl, i) => {
+      const th = el("th", { scope: "col" }, sl.label), sm = el("small", {}, `${pad(sl.from)}–${pad(sl.to)}`);
+      if (slotPast(i)) sm.append(" · earlier");
+      else if (day === 0 && nowH >= sl.from) { sm.append(" · "); sm.append(el("em", {}, "now")); }
+      th.append(sm);
+      hr.append(th);
+    });
+    thead.append(hr);
+    const tbody = el("tbody");
+    for (const key of ROWS[spot.kind]) {
+      const [label, unit, cell] = ROW[key];
+      const tr = el("tr"), th = el("th", { scope: "row" }, key === "top" ? `Wind at ${LEVEL_HEIGHT[spot.level]}` : label);
+      if (unit) th.append(el("small", {}, unit));
+      tr.append(th);
+      stats.forEach((s, i) => tr.append(el("td", { class: slotPast(i) ? "past" : null }, cell(s, i, spot))));
+      tbody.append(tr);
+    }
+    const sr = el("tr", { class: "strip-row" }), sth = el("th", { scope: "row" });
+    const axis = el("span", { class: "axis", "aria-hidden": "true" });
+    for (const v of [20, 40, 60, 80, 100].filter(v => v <= scale)) axis.append(el("i", { style: `bottom:${v / scale * 100}%` }, String(v)));
+    sth.append(axis, el("span", { class: "strip-name" }, "By hour"));
+    const std = el("td", { colspan: "3" });
+    std.append(buildStrip(spot, scale));
+    sr.append(sth, std);
+    tbody.append(sr);
+    table.append(cg, thead, tbody);
+    card.append(table);
+    const note = sharedNote(spot);
+    if (note) card.append(el("p", { class: "foot" }, note));
+    return card;
+  }
+
+  // Tooltip: hover a column, or focus a chart and use the arrow keys.
+  function showTip(strip, spot, h) {
+    strip.querySelectorAll(".col.on").forEach(c => c.classList.remove("on"));
+    const col = strip.querySelector(`.col[data-h="${h}"]`);
+    col.classList.add("on");
+    const i = day * 24 + h;
+    tip.replaceChildren(el("div", { class: "h" }, `${pad(h)}:00 · ${spot.name}`));
+    const row = (value, label) => { const d = el("div"); d.append(el("strong", {}, value), ` ${label}`); tip.append(d); };
+    if (spot.topWind) row(`${spot.topWind[i]} km/h`, `from ${c16(spot.topDir[i])} at ${LEVEL_HEIGHT[spot.level]}`);
+    else { row(`${spot.wind[i]} km/h`, `from ${c16(spot.dir[i])}`); row(`${spot.gust[i]} km/h`, "gusts"); }
+    row(`${round(spot.t[i])}°C`, spot.kind === "peak" ? "at the top" : "air");
+    tip.hidden = false;
+    const r = col.getBoundingClientRect(), w = tip.offsetWidth, ht = tip.offsetHeight;
+    tip.style.left = `${Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8)}px`;
+    tip.style.top = `${r.top - ht - 8 < 8 ? r.bottom + 8 : r.top - ht - 8}px`;
+    strip.dataset.h = h;
+  }
+  function hideTip(strip) { tip.hidden = true; strip.querySelectorAll(".col.on").forEach(c => c.classList.remove("on")); }
+  function wireStrip(strip, spot) {
+    strip.addEventListener("pointermove", e => { const c = e.target.closest(".col"); if (c) showTip(strip, spot, +c.dataset.h); });
+    strip.addEventListener("pointerleave", () => hideTip(strip));
+    strip.addEventListener("focus", () => showTip(strip, spot,
+      +(strip.dataset.h || (day === 0 ? Math.min(Math.max(Math.floor(nowH), FIRST_HOUR), LAST_HOUR - 1) : 12))));
+    strip.addEventListener("blur", () => hideTip(strip));
+    strip.addEventListener("keydown", e => {
+      const h = +(strip.dataset.h || FIRST_HOUR);
+      if (e.key === "ArrowRight" || e.key === "ArrowLeft") {
+        e.preventDefault();
+        showTip(strip, spot, Math.min(LAST_HOUR - 1, Math.max(FIRST_HOUR, h + (e.key === "ArrowRight" ? 1 : -1))));
+      } else if (e.key === "Escape") hideTip(strip);
+    });
+  }
+  addEventListener("scroll", () => { tip.hidden = true; }, { passive: true });
+
+  function render() {
+    tip.hidden = true;
+    nowH = currentHour();
+    const scale = scaleFor(), d = data.days[day];
+    $("cond-d0").textContent = dateLabel(data.days[0].date);
+    $("cond-d1").textContent = dateLabel(data.days[1].date);
+    $("cond-sun").textContent = `Sunrise ${d.sunrise} · Sunset ${d.sunset}`;
+    $("cond-status").textContent = `Forecast updated ${data.generated} from Open-Meteo. It refreshes every 30 minutes.`;
+    $("cond-sea").replaceChildren(...data.spots.filter(s => s.group === "sea").map(s => buildCard(s, scale)));
+    $("cond-mtn").replaceChildren(...data.spots.filter(s => s.group === "mountain").map(s => buildCard(s, scale)));
+    $("cond-body").hidden = false;
+    document.querySelectorAll("#conditions [data-day]").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.day === day)));
+  }
+
+  function showError() {
+    const s = $("cond-status");
+    s.replaceChildren(data
+      ? `Couldn't refresh the forecast, so this is still the one from ${data.generated}. `
+      : "Couldn't reach the forecast service (Open-Meteo). Check your connection and try again. ");
+    const b = el("button", { type: "button" }, "Try again");
+    b.addEventListener("click", () => refresh());
+    s.append(b);
+  }
+
+  function refresh() {
+    if (loading) return;
+    if (!data) $("cond-status").textContent = "Fetching the latest forecast…";
+    loading = fetchConditions()
+      .then(d => {
+        const first = !data;
+        data = d; loadedAt = Date.now();
+        if (first && currentHour() >= LAST_HOUR) day = 1;   // late evening: start on tomorrow
+        render();
+      })
+      .catch(showError)
+      .finally(() => { loading = null; });
+  }
+
+  function showConditions() {
+    if (Date.now() - loadedAt > REFRESH_MS) refresh();
+    else if (data) render();
+  }
+  setInterval(() => {
+    if (!$("conditions").hidden && !document.hidden && Date.now() - loadedAt > REFRESH_MS) refresh();
+  }, 60 * 1000);
+
+  document.querySelectorAll("#conditions [data-day]").forEach(b => b.addEventListener("click", () => {
+    day = +b.dataset.day;
+    if (data) render();
+  }));
+
+  // ---- Switching between Cams and Conditions ----
+  function setView(cond) {
+    $("grid").hidden = cond;
+    $("conditions").hidden = !cond;
+    document.querySelector(".controls").hidden = cond;
+    $("v-cams").setAttribute("aria-pressed", String(!cond));
+    $("v-cond").setAttribute("aria-pressed", String(cond));
+    // Hidden streams would keep downloading video, so unload them and reload on the way back.
+    document.querySelectorAll(".screen iframe").forEach(f => {
+      if (cond && !f.dataset.src) { f.dataset.src = f.src; f.src = "about:blank"; }
+      else if (!cond && f.dataset.src) { f.src = f.dataset.src; delete f.dataset.src; }
+    });
+    if (cond) showConditions(); else tip.hidden = true;
+  }
+  $("v-cams").addEventListener("click", () => { setView(false); history.replaceState(null, "", location.pathname + location.search); });
+  $("v-cond").addEventListener("click", () => { setView(true); history.replaceState(null, "", "#conditions"); });
+  addEventListener("hashchange", () => setView(location.hash === "#conditions"));
+  if (location.hash === "#conditions") setView(true);
+})();
 </script>
 </body>
 </html>
