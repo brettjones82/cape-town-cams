@@ -70,6 +70,10 @@
     background: rgba(14,18,20,0.6); padding: 2px 5px; border-radius: 3px; text-decoration: none;
   }
   .credit:hover { color: var(--accent); }
+  .ended { position: absolute; inset: 0; display: grid; place-content: center; justify-items: center; gap: 8px; padding: 16px; text-align: center; background: var(--panel); }
+  .ended .title { font: 700 18px var(--display); }
+  .ended p { margin: 0; max-width: 34ch; font: 400 12px/1.5 var(--mono); color: var(--muted); }
+  .ended a { font: 500 12px var(--mono); color: var(--accent); }
   .offline small { font: 400 11px var(--mono); color: var(--fg); background: rgba(14,18,20,0.7); padding: 2px 6px; border-radius: 3px; }
 
   .bar { display: flex; align-items: center; gap: 10px; padding: 10px 12px; min-width: 0; }
@@ -210,26 +214,29 @@
   // Add or remove cams here. embed:false = owner has blocked embedding, so the tile links out.
   // Non-YouTube cams: give src (player URL to embed) and link (page to open) instead of id.
   // Blocked cams can set poster (local photo) and credit [text, url]; otherwise YouTube's thumbnail is used.
+  // channel = the YouTube channel handle, linked from the "Stream ended" note. Video IDs are kept current
+  // by the daily stream check (scripts/heal_streams.py); its RULES match these names exactly.
   const CAMS = [
-    { id: "fhUEi-ka6Ks", name: "Table Mountain", area: "City Bowl" },
-    { id: "-Qi7IXhSScA", name: "Signal Hill", area: "City Bowl" },
-    { id: "8xvFxAPpEtc", name: "Signal Hill and CBD", area: "City Bowl" },
-    { id: "4Zu64CmAjMo", name: "Sea Point and Lion's Head", area: "Atlantic" },
+    { id: "fhUEi-ka6Ks", name: "Table Mountain", area: "City Bowl", channel: "@VanillaISP" },
+    { id: "-Qi7IXhSScA", name: "Signal Hill", area: "City Bowl", channel: "@VanillaISP" },
+    { id: "8xvFxAPpEtc", name: "Signal Hill and CBD", area: "City Bowl", channel: "@VanillaISP" },
+    { id: "4Zu64CmAjMo", name: "Sea Point and Lion's Head", area: "Atlantic", channel: "@VanillaISP" },
     { id: "IGu55JrxyHU", name: "Clifton 4th Beach", area: "Atlantic", embed: false, poster: "img/clifton-4th.jpg",
       credit: ["Warren Rohner, CC BY-SA 2.0", "https://commons.wikimedia.org/wiki/File:Clifton_4th_Beach.jpg"] },
-    { id: "vOLCjL4kv-w", name: "Table Mountain from Bloubergstrand", area: "Table Bay" },
-    { id: "PuTE2fhEoW0", name: "Muizenberg Beach", area: "False Bay" },
-    { id: "_Xsh_t48D3Q", name: "Muizenberg Surf", area: "False Bay" },
+    { id: "vOLCjL4kv-w", name: "Table Mountain from Bloubergstrand", area: "Table Bay", channel: "@TableMountainLiveStream" },
+    { id: "PuTE2fhEoW0", name: "Muizenberg Beach", area: "False Bay", channel: "@Reef-SA" },
+    { id: "_Xsh_t48D3Q", name: "Muizenberg Surf", area: "False Bay", channel: "@MuizenbergWaveWatchers" },
     { name: "Big Bay", area: "Table Bay", src: "https://g0.ipcamlive.com/player/player.php?alias=bigbaybigboy&autoplay=1", link: "https://bigbaylifesaving.co.za/" },
     { id: "nK3l-mKYCwc", name: "Strand Beach", area: "False Bay", embed: false, poster: "img/strand.jpg",
       credit: ["SkyPixels, CC BY-SA 4.0", "https://commons.wikimedia.org/wiki/File:Strand_Beach_Promenade.jpg"] },
-    { id: "mxEholKv57A", name: "Langebaan Lagoon", area: "West Coast" },
-    { id: "bVtf0Qcc_gY", name: "Nature's Valley, Plettenberg Bay", area: "Garden Route" }
+    { id: "mxEholKv57A", name: "Langebaan Lagoon", area: "West Coast", channel: "@TableMountainLiveStream" },
+    { id: "bVtf0Qcc_gY", name: "Nature's Valley, Plettenberg Bay", area: "Garden Route", channel: "@TCSLiveOnline" }
   ];
 
   const grid = document.getElementById("grid");
   const watch = id => "https://www.youtube.com/watch?v=" + id;
-  const src = id => "https://www.youtube.com/embed/" + id + "?autoplay=1&mute=1&playsinline=1&rel=0";
+  const src = id => "https://www.youtube.com/embed/" + id + "?autoplay=1&mute=1&playsinline=1&rel=0&enablejsapi=1&origin="
+    + encodeURIComponent(location.origin);
   const embedUrl = cam => cam.src || src(cam.id);
   const linkUrl = cam => cam.link || watch(cam.id);
   const poster = cam => "linear-gradient(rgba(0,0,0,0.2), rgba(0,0,0,0.55)), " + (cam.poster ? `url(${cam.poster})` :
@@ -243,7 +250,8 @@
         <span class="watch">Watch on ${cam.src ? "website" : "YouTube"}</span><small>Opens in pop-out player</small></a>
         ${cam.credit ? `<a class="credit" href="${cam.credit[1]}" target="_blank" rel="noopener">Photo: ${cam.credit[0]}</a>` : ""}`;
     }
-    return `<iframe src="${embedUrl(cam)}" title="${cam.name} live"
+    const yt = cam.src ? "" : ` data-yt data-link="${cam.channel ? `https://www.youtube.com/${cam.channel}/streams` : watch(cam.id)}"`;
+    return `<iframe src="${embedUrl(cam)}" title="${cam.name} live"${yt}
       allow="autoplay; encrypted-media; picture-in-picture; fullscreen"
       referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy"></iframe>`;
   }
@@ -287,8 +295,21 @@
   }));
 
   document.getElementById("reload").addEventListener("click", () => {
+    document.querySelectorAll(".screen .ended").forEach(n => n.remove());
     document.querySelectorAll(".screen iframe").forEach(f => { f.src = f.src; });
   });
+
+  // A dead stream (restarted or removed by its owner) makes YouTube's player report an error. Cover it
+  // with a note and a link to the channel's live streams; the daily stream check swaps in the new ID.
+  function streamEnded(iframe) {
+    if (iframe.parentElement.querySelector(".ended")) return;
+    iframe.parentElement.insertAdjacentHTML("beforeend", `<div class="ended"><span class="title">Stream ended</span>
+      <p>The owner restarted or stopped this stream. The page picks up the new one each morning.</p>
+      <a href="${iframe.dataset.link}" target="_blank" rel="noopener">Find the live stream on YouTube</a></div>`);
+  }
+  window.onYouTubeIframeAPIReady = () => document.querySelectorAll(".screen iframe[data-yt]")
+    .forEach(f => new YT.Player(f, { events: { onError: () => streamEnded(f) } }));
+  document.head.append(Object.assign(document.createElement("script"), { src: "https://www.youtube.com/iframe_api" }));
 
   const clock = document.getElementById("clock");
   const tick = () => clock.textContent = "SAST " + new Date().toLocaleTimeString("en-ZA",

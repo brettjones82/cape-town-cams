@@ -1,0 +1,41 @@
+# Once a day, swap in new video IDs for YouTube live streams that were restarted (scripts/heal_streams.py).
+# Run it by hand from the repo's Actions tab ("Run workflow").
+name: Stream check
+
+on:
+  schedule:
+    - cron: "0 4 * * *"   # 06:00 in Cape Town
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Look for restarted streams
+        id: check
+        run: python3 scripts/heal_streams.py
+
+      - name: Commit and publish any updates
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet; then echo "No changes"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898299+github-actions[bot]@users.noreply.github.com"
+          git commit -am "Update restarted stream IDs (daily check)"
+          git push
+          # Pushes made by this job don't start a Pages build on their own, so ask for one.
+          gh api -X POST "repos/${{ github.repository }}/pages/builds"
+
+      # A failed run makes GitHub email the repo owner, so problems don't go unnoticed.
+      - name: Report problems
+        if: steps.check.outputs.problems == '1'
+        run: |
+          echo "::error::Some streams couldn't be checked or updated. See the run summary."
+          exit 1
