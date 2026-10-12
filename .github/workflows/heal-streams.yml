@@ -4,7 +4,8 @@ name: Stream check
 
 on:
   schedule:
-    - cron: "0 4 * * *"   # 06:00 in Cape Town
+    # Odd minute in a quiet hour: GitHub delays or drops scheduled runs when busy, worst on the hour.
+    - cron: "43 2 * * *"   # 04:43 in Cape Town
   workflow_dispatch:
 
 permissions:

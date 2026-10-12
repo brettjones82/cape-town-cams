@@ -58,6 +58,10 @@ def fetch(url):
     raise RuntimeError(str(err))
 
 
+def oembed(video):
+    return f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={video}&format=json"
+
+
 def feed(channel):
     """Newest first as (published, video id, normalised title). The feed itself isn't strictly date-ordered."""
     status, xml = fetch(f"https://www.youtube.com/feeds/videos.xml?channel_id={channel}")
@@ -85,13 +89,17 @@ def main():
             continue
         hits = [vid for _, vid, title in feeds[channel]
                 if all(p in title for p in must) and not any(p in title for p in must_not)]
-        if not hits:
-            print(f"{cam}: stream older than the feed's 15 newest videos, keeping {current}")
-        elif hits[0] == current:
-            print(f"{cam}: OK ({current})")
+        if not hits or hits[0] == current:
+            # Nothing newer to switch to. YouTube's oEmbed answers 404 for a removed video (not for every
+            # ended stream), so flag that case: it needs a person, and a problem makes GitHub send an email.
+            status, _ = fetch(oembed(current))
+            if status == 404:
+                problems.append(f"{cam}: stream {current} is gone and its channel feed has no newer match")
+            else:
+                print(f"{cam}: OK ({current})" if hits else f"{cam}: stream older than the feed's 15 newest videos, keeping {current}")
         else:
             new = hits[0]
-            status, _ = fetch(f"https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v={new}&format=json")
+            status, _ = fetch(oembed(new))
             if status != 200:
                 problems.append(f"{cam}: newest stream {new} can't be embedded (HTTP {status}), keeping {current}")
                 continue
