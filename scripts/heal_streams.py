@@ -34,7 +34,7 @@ RULES = {
     "Sea Point and Lion's Head": (VANILLA, ["sea point and lions head"], []),
     "Table Mountain from Bloubergstrand": (TABLE_MTN_LS, ["bloubergstrand beach camera"], []),
     "Muizenberg Beach": (REEF, ["muizenberg beach live"], []),
-    "Muizenberg Surf": (WAVE_WATCHERS, ["surf webcam"], []),
+    # Muizenberg Surf isn't here: the page embeds Wave Watchers' channel live stream directly.
     "Langebaan Lagoon": (TABLE_MTN_LS, ["langebaan lagoon camera"], []),
     "Nature's Valley, Plettenberg Bay": (TCS, ["natures valley"], []),
 }
