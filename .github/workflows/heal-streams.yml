@@ -1,11 +1,13 @@
-# Once a day, swap in new video IDs for YouTube live streams that were restarted (scripts/heal_streams.py).
+# Twice a day, swap in new video IDs for YouTube live streams that were restarted (scripts/heal_streams.py).
 # Run it by hand from the repo's Actions tab ("Run workflow").
 name: Stream check
 
 on:
   schedule:
-    # Odd minute in a quiet hour: GitHub delays or drops scheduled runs when busy, worst on the hour.
-    - cron: "43 2 * * *"   # 04:43 in Cape Town
+    # Odd minutes: GitHub delays or drops scheduled runs when busy, worst on the hour.
+    - cron: "43 2 * * *"    # 04:43 in Cape Town
+    - cron: "13 12 * * *"   # 14:13 in Cape Town
+    - cron: "7,22,37,52 * * * *"   # TEMPORARY: proves the schedule fires; remove once a scheduled run shows up
   workflow_dispatch:
 
 permissions:
@@ -16,7 +18,7 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Look for restarted streams
         id: check
