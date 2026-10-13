@@ -7,7 +7,6 @@ on:
     # Odd minutes: GitHub delays or drops scheduled runs when busy, worst on the hour.
     - cron: "43 2 * * *"    # 04:43 in Cape Town
     - cron: "13 12 * * *"   # 14:13 in Cape Town
-    - cron: "7,22,37,52 * * * *"   # TEMPORARY: proves the schedule fires; remove once a scheduled run shows up
   workflow_dispatch:
 
 permissions:
