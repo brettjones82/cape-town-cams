@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-  /* Layout: wall of 16:9 monitors, header strip with SAST clock and column control */
+  /* Layout: two-column wall of 16:9 monitors, header strip with SAST clock */
   :root {
     --bg: #0e1214;
     --panel: #161c1f;
@@ -22,7 +22,7 @@
     --tip: #0a0e10;
     --display: "Archivo", system-ui, sans-serif;
     --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
-    --cols: 3;
+    --cols: 2;
     color-scheme: dark;
   }
   * { box-sizing: border-box; }
@@ -172,10 +172,7 @@
       <button type="button" id="v-cams" aria-pressed="true">Cams</button>
       <button type="button" id="v-cond" aria-pressed="false">Conditions</button>
     </nav>
-    <div class="controls" role="group" aria-label="Columns">
-      <span>Columns</span>
-      <button id="c2" data-cols="2">2</button>
-      <button id="c3" data-cols="3" aria-pressed="true">3</button>
+    <div class="controls" role="group" aria-label="Cam controls">
       <button id="reload">Reload all</button>
     </div>
   </header>
@@ -294,11 +291,6 @@
       `popup,width=${w},height=${h},left=${scr.availWidth - w - 20},top=40`);
     if (win) { e.preventDefault(); win.focus(); }
   });
-
-  document.querySelectorAll("[data-cols]").forEach(btn => btn.addEventListener("click", () => {
-    document.documentElement.style.setProperty("--cols", btn.dataset.cols);
-    document.querySelectorAll("[data-cols]").forEach(b => b.setAttribute("aria-pressed", b === btn));
-  }));
 
   document.getElementById("reload").addEventListener("click", () => {
     document.querySelectorAll(".screen .ended").forEach(n => n.remove());
