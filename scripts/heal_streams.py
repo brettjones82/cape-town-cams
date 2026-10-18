@@ -24,6 +24,7 @@ REEF = "UCef_Yfk6baScsTCcDxzXE5Q"             # @Reef-SA
 WAVE_WATCHERS = "UCf6fbt2V_PXTFtdg1fruTDA"    # @MuizenbergWaveWatchers
 TABLE_MTN_LS = "UCLaxio5CTbT1gl5i8FB2-yw"     # @TableMountainLiveStream
 TCS = "UCtLaqdQYL-JPh2YarCGOPOw"              # @TCSLiveOnline
+CAPE_OCEAN = "UCLwTi-vM5zaadH1ytPo-rTg"       # @CapeOceanAdventures
 
 # Cam name exactly as in index.html -> (channel, phrases the title must contain, phrases it must not).
 # Keep phrases specific: the channels also post clips (e.g. "Newlands fire over Table Mountain").
@@ -35,6 +36,7 @@ RULES = {
     "Table Mountain from Bloubergstrand": (TABLE_MTN_LS, ["bloubergstrand beach camera"], []),
     "Muizenberg Beach": (REEF, ["muizenberg beach live"], []),
     # Muizenberg Surf isn't here: the page embeds Wave Watchers' channel live stream directly.
+    "Strand Beach": (CAPE_OCEAN, ["strand beach cam"], []),
     "Langebaan Lagoon": (TABLE_MTN_LS, ["langebaan lagoon camera"], []),
     "Nature's Valley, Plettenberg Bay": (TCS, ["natures valley"], []),
 }
