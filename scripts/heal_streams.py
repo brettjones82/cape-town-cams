@@ -47,7 +47,7 @@ def get(url):
     err = None
     for _ in range(3):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (cape-town-cams stream check)"})
+            req = urllib.request.Request(url, headers={"User-Agent": "cape-town-cams stream check"  # YouTube feeds reject "Mozilla/..." labels})
             with urllib.request.urlopen(req, timeout=20) as r:
                 return r.status, r.read().decode(errors="replace"), r.headers
         except urllib.error.HTTPError as e:
