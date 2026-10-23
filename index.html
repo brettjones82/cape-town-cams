@@ -222,7 +222,7 @@
     { id: "4Zu64CmAjMo", name: "Sea Point and Lion's Head", area: "Atlantic", channel: "@VanillaISP" },
     { id: "IGu55JrxyHU", name: "Clifton 4th Beach", area: "Atlantic", embed: false, poster: "img/clifton-4th.jpg",
       credit: ["Warren Rohner, CC BY-SA 2.0", "https://commons.wikimedia.org/wiki/File:Clifton_4th_Beach.jpg"] },
-    { name: "Camps Bay (The Bay Hotel)", area: "Atlantic", src: "https://g2.ipcamlive.com/player/player.php?alias=vnlbeach&autoplay=1", link: "https://thebayhotel.com/webcam/" },
+    { name: "Camps Bay (The Bay Hotel)", area: "Atlantic", embed: false, link: "https://thebayhotel.com/webcam/" },
     { name: "Camps Bay Village", area: "Atlantic", src: "https://g2.ipcamlive.com/player/player.php?alias=vnlcbv&autoplay=1", link: "https://www.campsbayvillage.com/webcam/" },
     { name: "Camps Bay (POD Hotel)", area: "Atlantic", src: "https://api.wetmet.net/widgets/stream/frame.php?uid=4a59c11daeee60a2eb4b751506235ce7", link: "https://www.oystercollection.co.za/pod-camps-bay-boutique-hotel/webcam/" },
     { id: "vOLCjL4kv-w", name: "Table Mountain from Bloubergstrand", area: "Table Bay", channel: "@TableMountainLiveStream" },
@@ -250,7 +250,7 @@
       return `<a class="offline" href="${linkUrl(cam)}" target="_blank" rel="noopener" data-popout
         style="${cam.id || cam.poster ? `background-image: ${poster(cam)}` : ""}">
         <span class="title">${cam.name} webcam</span>
-        <span class="watch">Watch on ${cam.src ? "website" : "YouTube"}</span><small>Opens in pop-out player</small></a>
+        <span class="watch">Watch on ${cam.id ? "YouTube" : "website"}</span><small>Opens in pop-out player</small></a>
         ${cam.credit ? `<a class="credit" href="${cam.credit[1]}" target="_blank" rel="noopener">Photo: ${cam.credit[0]}</a>` : ""}`;
     }
     const yt = cam.src ? "" : ` data-yt data-link="${cam.channel ? `https://www.youtube.com/${cam.channel}/streams` : linkUrl(cam)}"`;
@@ -267,7 +267,7 @@
         <span class="name">${c.name}</span>
         <span class="area">${c.area}</span>
         ${c.embed === false ? "" : `<button data-big="${i}" title="Make this cam full width">Enlarge</button>`}
-        <a href="${linkUrl(c)}" target="_blank" rel="noopener"${c.embed === false ? " data-popout" : ""}>${c.src ? "Website" : "YouTube"}</a>
+        <a href="${linkUrl(c)}" target="_blank" rel="noopener"${c.embed === false ? " data-popout" : ""}>${c.id ? "YouTube" : "Website"}</a>
       </div>
     </article>`).join("");
 

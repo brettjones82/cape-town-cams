@@ -42,22 +42,46 @@ RULES = {
 }
 
 
-def fetch(url):
-    """Returns (status, body). Retries network errors and 5xx; 4xx is an answer, not a failure."""
+def get(url):
+    """Returns (status, body, headers). Retries network errors and 5xx; 4xx is an answer, not a failure."""
     err = None
     for _ in range(3):
         try:
-            req = urllib.request.Request(url, headers={"User-Agent": "cape-town-cams stream check"})
+            req = urllib.request.Request(url, headers={"User-Agent": "Mozilla/5.0 (cape-town-cams stream check)"})
             with urllib.request.urlopen(req, timeout=20) as r:
-                return r.status, r.read().decode()
+                return r.status, r.read().decode(errors="replace"), r.headers
         except urllib.error.HTTPError as e:
             if e.code < 500:
-                return e.code, ""
+                return e.code, "", e.headers
             err = e
         except Exception as e:  # timeouts, DNS, resets
             err = e
         time.sleep(5)
     raise RuntimeError(str(err))
+
+
+def fetch(url):
+    return get(url)[:2]
+
+
+SITE = "brettjones82.github.io"
+
+
+def embed_blocked(url):
+    """Why a non-YouTube player won't load inside our page, or None if it should. These can't be fixed
+    automatically (the owner chose to lock them), so they're reported as problems."""
+    status, body, headers = get(url)
+    if status != 200:
+        return f"player answers HTTP {status}"
+    if (headers.get("X-Frame-Options") or "").strip():
+        return f"player only loads on its own site (X-Frame-Options: {headers['X-Frame-Options']})"
+    csp = headers.get("Content-Security-Policy") or ""
+    ancestors = re.search(r"frame-ancestors([^;]*)", csp)
+    if ancestors and "*" not in ancestors.group(1) and SITE not in ancestors.group(1):
+        return f"player only loads on {ancestors.group(1).strip()}"
+    if re.search(r"domainlockenabled\s*=\s*1", body):
+        return "IPCamLive domain lock is on"
+    return None
 
 
 def oembed(video):
@@ -107,6 +131,17 @@ def main():
                 continue
             page = page[:m.start(1)] + new + page[m.end(1):]
             changes.append(f"{cam}: {current} -> {new}")
+
+    # Non-YouTube cams (IPCamLive, WetMet): can't heal, but flag one that stops allowing embedding.
+    for cam, src in re.findall(r'\{ name: "([^"]+)", area: "[^"]+", src: "([^"]+)"', page):
+        try:
+            reason = embed_blocked(src)
+        except RuntimeError as e:
+            reason = f"player unreachable ({e})"
+        if reason:
+            problems.append(f"{cam}: {reason}. Make it a link-out tile (embed: false) or remove it")
+        else:
+            print(f"{cam}: embeddable")
 
     if changes:
         PAGE.write_text(page)
